@@ -1,0 +1,244 @@
+# Pattern taxonomy. `family` is the NeetCode category the pattern lives under;
+# it is used to pick plausible wrong answers. `confusableWith` lists the
+# patterns people most often reach for by mistake — these are preferred as
+# distractors. Order within the file is the display order.
+
+- id: hash-map
+  name: Hash Map / Set
+  family: Arrays & Hashing
+  blurb: Trade memory for O(1) lookups — seen values, counts, grouping by a key.
+  confusableWith: [sorting, two-pointers, prefix-sum]
+
+- id: prefix-sum
+  name: Prefix Sum / Product
+  family: Arrays & Hashing
+  blurb: Precompute running totals so any range or "everything except i" is O(1).
+  confusableWith: [sliding-window, hash-map, dp-1d]
+
+- id: sorting
+  name: Sort First
+  family: Arrays & Hashing
+  blurb: Sorting exposes structure — duplicates become adjacent, pairs become ordered.
+  confusableWith: [hash-map, two-pointers, heap]
+
+- id: bucket-sort
+  name: Bucket / Counting Sort
+  family: Arrays & Hashing
+  blurb: When values are bounded (like frequencies ≤ n), index by value instead of sorting.
+  confusableWith: [top-k, heap, sorting]
+
+- id: string-manipulation
+  name: String Encoding / Parsing
+  family: Arrays & Hashing
+  blurb: Build or read a string with a delimiter, length prefix, or digit-by-digit arithmetic.
+  confusableWith: [hash-map, math, stack]
+
+- id: two-pointers
+  name: Two Pointers
+  family: Two Pointers
+  blurb: Two indices moving toward each other or in tandem over sorted or symmetric data.
+  confusableWith: [sliding-window, binary-search, hash-map]
+
+- id: sliding-window
+  name: Sliding Window
+  family: Sliding Window
+  blurb: Maintain a contiguous window that grows and shrinks to satisfy a constraint.
+  confusableWith: [two-pointers, prefix-sum, dp-1d]
+
+- id: stack
+  name: Stack
+  family: Stack
+  blurb: Last-in-first-out matching and nesting — brackets, expressions, undo.
+  confusableWith: [monotonic-stack, two-pointers, backtracking]
+
+- id: monotonic-stack
+  name: Monotonic Stack
+  family: Stack
+  blurb: A stack kept sorted to answer "next greater/smaller element" in one pass.
+  confusableWith: [stack, sliding-window, heap]
+
+- id: binary-search
+  name: Binary Search
+  family: Binary Search
+  blurb: Halve a sorted (or rotated-sorted) search space each step.
+  confusableWith: [two-pointers, binary-search-on-answer, sorting]
+
+- id: binary-search-on-answer
+  name: Binary Search on the Answer
+  family: Binary Search
+  blurb: The answer is monotonic — guess it, check feasibility, halve the range.
+  confusableWith: [binary-search, greedy, dp-1d]
+
+- id: linked-list
+  name: Linked List Manipulation
+  family: Linked List
+  blurb: Pointer surgery — reverse, splice, merge, or remove nodes in place.
+  confusableWith: [fast-slow-pointers, stack, two-pointers]
+
+- id: fast-slow-pointers
+  name: Fast & Slow Pointers
+  family: Linked List
+  blurb: Two pointers at different speeds find cycles, midpoints, or the k-th from the end.
+  confusableWith: [linked-list, two-pointers, hash-map]
+
+- id: hash-linked-list
+  name: Hash Map + Doubly Linked List
+  family: Linked List
+  blurb: O(1) lookup plus O(1) reorder/evict — the LRU cache combo.
+  confusableWith: [hash-map, linked-list, heap]
+
+- id: tree-dfs
+  name: Tree DFS / Recursion
+  family: Trees
+  blurb: Solve for each subtree and combine — depth, diameter, path sums, reconstruction.
+  confusableWith: [tree-bfs, backtracking, bst-property]
+
+- id: tree-bfs
+  name: Tree BFS / Level Order
+  family: Trees
+  blurb: Process nodes level by level with a queue.
+  confusableWith: [tree-dfs, graph-bfs, heap]
+
+- id: bst-property
+  name: BST Ordering
+  family: Trees
+  blurb: Exploit left < node < right — in-order traversal is sorted, and bounds prune.
+  confusableWith: [tree-dfs, binary-search, tree-bfs]
+
+- id: trie
+  name: Trie
+  family: Tries
+  blurb: A prefix tree for word sets — fast prefix search and multi-word matching.
+  confusableWith: [hash-map, backtracking, tree-dfs]
+
+- id: heap
+  name: Heap / Priority Queue
+  family: Heap / Priority Queue
+  blurb: Repeatedly pull the current min or max from a changing set.
+  confusableWith: [sorting, top-k, monotonic-stack]
+
+- id: top-k
+  name: Top-K with a Bounded Heap
+  family: Heap / Priority Queue
+  blurb: Keep a heap of size k to track the k largest/smallest in a stream.
+  confusableWith: [heap, bucket-sort, sorting]
+
+- id: two-heaps
+  name: Two Heaps
+  family: Heap / Priority Queue
+  blurb: A max-heap for the lower half and a min-heap for the upper half — running median.
+  confusableWith: [heap, top-k, binary-search]
+
+- id: backtracking
+  name: Backtracking
+  family: Backtracking
+  blurb: Build candidates incrementally, recurse, undo — subsets, permutations, placements.
+  confusableWith: [dp-1d, graph-dfs, tree-dfs]
+
+- id: graph-dfs
+  name: Graph DFS / Flood Fill
+  family: Graphs
+  blurb: Explore a component fully before moving on — islands, cloning, reachability.
+  confusableWith: [graph-bfs, union-find, backtracking]
+
+- id: graph-bfs
+  name: Graph BFS / Multi-source
+  family: Graphs
+  blurb: Shortest steps in an unweighted graph; seed the queue with every source at once.
+  confusableWith: [graph-dfs, dijkstra, tree-bfs]
+
+- id: topological-sort
+  name: Topological Sort
+  family: Graphs
+  blurb: Order nodes so every edge points forward — prerequisites, dependencies, cycle detection.
+  confusableWith: [graph-dfs, graph-bfs, union-find]
+
+- id: union-find
+  name: Union-Find
+  family: Graphs
+  blurb: Merge sets and test connectivity near O(1) — components, redundant edges, tree validity.
+  confusableWith: [graph-dfs, topological-sort, mst]
+
+- id: dijkstra
+  name: Dijkstra
+  family: Advanced Graphs
+  blurb: Shortest paths with non-negative weights using a min-heap.
+  confusableWith: [graph-bfs, bellman-ford, mst]
+
+- id: bellman-ford
+  name: Bellman-Ford / Bounded Relaxation
+  family: Advanced Graphs
+  blurb: Relax all edges k times — shortest path with a hop limit or negative weights.
+  confusableWith: [dijkstra, dp-2d, graph-bfs]
+
+- id: mst
+  name: Minimum Spanning Tree
+  family: Advanced Graphs
+  blurb: Connect everything at minimum total cost — Prim with a heap or Kruskal with union-find.
+  confusableWith: [dijkstra, union-find, greedy]
+
+- id: eulerian-path
+  name: Eulerian Path
+  family: Advanced Graphs
+  blurb: Use every edge exactly once — Hierholzer's algorithm with post-order insertion.
+  confusableWith: [graph-dfs, topological-sort, backtracking]
+
+- id: dp-1d
+  name: 1-D Dynamic Programming
+  family: 1-D Dynamic Programming
+  blurb: dp[i] depends on a few earlier dp values — stairs, robbers, decoding, coins.
+  confusableWith: [greedy, dp-2d, backtracking]
+
+- id: knapsack
+  name: Knapsack DP
+  family: 1-D Dynamic Programming
+  blurb: Choose items to hit a target sum or count — 0/1 vs unbounded decides the loop order.
+  confusableWith: [dp-1d, backtracking, dp-2d]
+
+- id: expand-around-center
+  name: Expand Around Center
+  family: 1-D Dynamic Programming
+  blurb: Every palindrome has a center; grow outward from each of the 2n−1 centers.
+  confusableWith: [dp-2d, two-pointers, sliding-window]
+
+- id: kadane
+  name: Kadane's Algorithm
+  family: Greedy
+  blurb: Best subarray ending here = extend or restart — O(n) max sum/product.
+  confusableWith: [dp-1d, sliding-window, prefix-sum]
+
+- id: dp-2d
+  name: 2-D Dynamic Programming
+  family: 2-D Dynamic Programming
+  blurb: dp[i][j] over two sequences or a grid — edit distance, LCS, paths, intervals.
+  confusableWith: [dp-1d, backtracking, graph-dfs]
+
+- id: greedy
+  name: Greedy
+  family: Greedy
+  blurb: A local best choice is provably globally safe — reach, ranges, matching.
+  confusableWith: [dp-1d, sorting, backtracking]
+
+- id: intervals
+  name: Intervals (Sort + Sweep)
+  family: Intervals
+  blurb: Sort by start, then merge, count overlaps, or sweep with a heap of end times.
+  confusableWith: [greedy, heap, sorting]
+
+- id: matrix
+  name: In-Place Matrix Tricks
+  family: Math & Geometry
+  blurb: Rotate, spiral, or mark a grid using indices and the matrix itself as scratch space.
+  confusableWith: [graph-dfs, two-pointers, math]
+
+- id: math
+  name: Math / Number Manipulation
+  family: Math & Geometry
+  blurb: Digit arithmetic, fast exponentiation, overflow handling.
+  confusableWith: [bit-manipulation, string-manipulation, dp-1d]
+
+- id: bit-manipulation
+  name: Bit Manipulation
+  family: Bit Manipulation
+  blurb: XOR cancels pairs, AND with n−1 clears the low bit, shifts move digits.
+  confusableWith: [math, hash-map, dp-1d]

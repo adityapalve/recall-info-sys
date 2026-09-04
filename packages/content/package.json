@@ -1,0 +1,19 @@
+{
+  "name": "@recall/content",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "ingest": "node scripts/ingest-neetcode.ts",
+    "build": "node scripts/build.ts"
+  },
+  "dependencies": {
+    "@recall/engine": "*",
+    "yaml": "^2.9.0"
+  }
+}

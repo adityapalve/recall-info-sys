@@ -68,6 +68,7 @@ export interface RunnerDeps {
 }
 
 export interface Feedback {
+  cardId: string
   question: Question
   problem: Problem
   chosen: string
@@ -158,6 +159,7 @@ export class SessionRunner {
     if (!problem) throw new Error(`no problem ${question.problemId}`)
     const correct = chosen === question.correctId
     this.pending = {
+      cardId: head.cardId,
       question,
       problem,
       chosen,

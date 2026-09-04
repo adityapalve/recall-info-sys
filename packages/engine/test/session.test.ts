@@ -129,6 +129,7 @@ describe('SessionRunner', () => {
     const wrong = q1?.options.find((o) => o.id !== q1.correctId)?.id as string
     const fb1 = runner.answer(wrong, 4000)
     expect(fb1.correct).toBe(false)
+    expect(fb1.cardId).toBe('lc:two-sum')
     expect(fb1.whyNotChosen).toBe(`not ${wrong} for two-sum`)
     expect(runner.current()).toBe(q1) // still pending
     const log1 = runner.commit(4) // rating ignored on a miss

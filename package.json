@@ -14,7 +14,10 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "check": "npm run lint && npm run fmt:check && npm run typecheck && npm test",
-    "demo": "npm run demo -w @recall/engine"
+    "demo": "npm run demo -w @recall/engine",
+    "build": "npm run build -w @recall/web",
+    "dev": "npm run dev -w @recall/web",
+    "preview": "npm run preview -w @recall/web -- --port 4173 --strictPort"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",

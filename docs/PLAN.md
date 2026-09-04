@@ -1,5 +1,7 @@
 # Recall — design plan
 
+> Status (2026-09-04): phases 0–2 built. Phase 3 (patterns screen, polish) and phase 4 (book mode) not started.
+
 Personal active-recall system. Anki-style scheduling, tailored to two use cases:
 
 1. **LeetCode mode** (v1): "which pattern solves this problem?" multiple choice.
