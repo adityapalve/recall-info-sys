@@ -1,0 +1,13 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: '*.{ts,tsx,js,mjs,json}'
+      run: npx oxlint {staged_files}
+    fmt:
+      glob: '*.{ts,tsx,js,mjs,json,md,yaml,yml}'
+      run: npx oxfmt --check {staged_files}
+pre-push:
+  commands:
+    check:
+      run: npm run typecheck && npm test
