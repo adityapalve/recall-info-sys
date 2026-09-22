@@ -14,7 +14,7 @@ export function Activity({ logs }: { logs: ReviewLog[] }) {
         <h2>Study activity</h2>
         <span>Last 8 weeks</span>
       </div>
-      <div className="grid grid-flow-col grid-rows-7 gap-1.5">
+      <div className="grid w-fit grid-flow-col grid-rows-7 gap-1">
         {days.map((d) => (
           <button
             key={d.key}
@@ -23,7 +23,7 @@ export function Activity({ logs }: { logs: ReviewLog[] }) {
             aria-label={`${d.key}: ${d.count} reviews${d.count ? `, ${Math.round((d.correct / d.count) * 100)}% correct` : ''}`}
             aria-pressed={selected === d.key}
             onClick={() => setSelected(d.key)}
-            className={`aspect-square rounded-sm ${d.future ? 'opacity-0' : colors[d.count === 0 ? 0 : d.count < 5 ? 1 : d.count < 10 ? 2 : d.count < 20 ? 3 : 4]} ${selected === d.key ? 'ring-2 ring-white' : ''}`}
+            className={`h-5 w-5 rounded-sm ${d.future ? 'opacity-0' : colors[d.count === 0 ? 0 : d.count < 5 ? 1 : d.count < 10 ? 2 : d.count < 20 ? 3 : 4]} ${selected === d.key ? 'ring-2 ring-white' : ''}`}
           />
         ))}
       </div>
