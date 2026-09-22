@@ -10,10 +10,13 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "ingest": "node scripts/ingest-neetcode.ts",
-    "build": "node scripts/build.ts"
+    "build": "tsx scripts/build.ts"
   },
   "dependencies": {
     "@recall/engine": "*",
     "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
   }
 }
