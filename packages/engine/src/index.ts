@@ -26,3 +26,4 @@ export {
   type PatternStat,
   type SummaryInput,
 } from './summary.ts'
+export * from './sync.ts'

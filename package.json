@@ -18,11 +18,14 @@
     "build": "npm run build -w @recall/web",
     "dev": "npm run dev -w @recall/web",
     "preview": "npm run preview -w @recall/web -- --port 4173 --strictPort",
-    "deploy": "npm run check && npm run build && wrangler pages deploy apps/web/dist --project-name recall --branch main"
+    "deploy": "npm run check && npm run build && wrangler pages deploy apps/web/dist --project-name recall --branch main",
+    "pretypecheck": "wrangler types"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
+    "fake-indexeddb": "^6.2.5",
     "lefthook": "^2.1.12",
+    "miniflare": "5.20260921.0-alpha",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0",
     "typescript": "^7.0.2",

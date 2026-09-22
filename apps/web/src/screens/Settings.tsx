@@ -1,6 +1,8 @@
-import { useRef, useState } from 'react'
+import { CloudPanel } from '../components/CloudPanel.tsx'
+import type { ExplanationFeedback } from '@recall/engine'
+import { useEffect, useRef, useState } from 'react'
 import { type Settings } from '@recall/engine'
-import { exportBackup, importBackup, wipeAll, type Backup } from '../lib/db.ts'
+import { exportBackup, importBackup, wipeAll, db } from '../lib/db.ts'
 
 interface Props {
   settings: Settings
@@ -30,26 +32,39 @@ async function doExport() {
   URL.revokeObjectURL(url)
 }
 
+async function doWipe() {
+  if (
+    !window.confirm(
+      'Clear this device and disconnect cloud sync? Cloud backups will remain. Unsynced changes will be lost. Export first.',
+    )
+  )
+    return
+  await wipeAll()
+  window.location.reload()
+}
+
 export function SettingsScreen({ settings, contentVersion, onChange, onBack }: Props) {
+  const [feedback, setFeedback] = useState<ExplanationFeedback[]>([])
+  useEffect(() => {
+    const refresh = () => {
+      void db.feedback.where('vote').equals('down').toArray().then(setFeedback)
+    }
+    refresh()
+    window.addEventListener('recall-cloud-applied', refresh)
+    return () => window.removeEventListener('recall-cloud-applied', refresh)
+  }, [])
   const [msg, setMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function doImport(f: File | undefined) {
     if (!f) return
     try {
-      const parsed = JSON.parse(await f.text()) as Backup
+      const parsed: unknown = JSON.parse(await f.text())
       const r = await importBackup(parsed)
       setMsg(`Imported ${r.states} card states and ${r.logs} reviews.`)
     } catch (e) {
       setMsg(`Import failed: ${e instanceof Error ? e.message : String(e)}`)
     }
-  }
-
-  async function doWipe() {
-    if (!window.confirm('Delete all progress on this device? Export first if you want to keep it.'))
-      return
-    await wipeAll()
-    setMsg('Progress cleared.')
   }
 
   return (
@@ -67,6 +82,7 @@ export function SettingsScreen({ settings, contentVersion, onChange, onBack }: P
       </header>
 
       <div className="mt-4 flex-1 overflow-y-auto">
+        <CloudPanel />
         <Section title="Sessions">
           <Stepper
             label="New cards per day"
@@ -125,11 +141,27 @@ export function SettingsScreen({ settings, contentVersion, onChange, onBack }: P
             onClick={doWipe}
             className="tap mt-2 w-full rounded-xl bg-zinc-900 py-3 font-medium text-rose-300"
           >
-            Clear all progress
+            Clear this device
           </button>
           {msg ? <p className="mt-3 text-sm text-zinc-400">{msg}</p> : null}
         </Section>
 
+        <Section title="Explanations to improve">
+          {feedback.length === 0 ? (
+            <p className="text-sm text-zinc-500">No explanations flagged yet.</p>
+          ) : (
+            feedback.map((f) => (
+              <div key={f.id} className="mb-3 rounded-lg bg-zinc-900 p-3 text-sm">
+                <p>{f.title}</p>
+                <p className="mt-1 text-zinc-400">
+                  {f.reason || 'Unhelpful'}
+                  {f.note ? ` · ${f.note}` : ''}
+                </p>
+                <p className="mt-1 text-xs text-zinc-500">Content {f.contentVersion}</p>
+              </div>
+            ))
+          )}
+        </Section>
         <Section title="About">
           <p className="text-sm text-zinc-500">Content version {contentVersion}</p>
         </Section>

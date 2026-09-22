@@ -1,14 +1,30 @@
+import { useState } from 'react'
+import { ExplanationRating } from '../components/ExplanationRating.tsx'
 import type { Feedback, Grade, Pattern } from '@recall/engine'
 import { formatDays } from '../lib/time.ts'
 
 interface Props {
+  contentVersion: string
   fb: Feedback
   intervals: Record<Grade, number>
   patterns: ReadonlyMap<string, Pattern>
-  onCommit: (rating?: Grade) => void
+  onCommit: (rating?: Grade) => Promise<void>
 }
 
-export function FeedbackScreen({ fb, intervals, patterns, onCommit }: Props) {
+export function FeedbackScreen({ fb, intervals, patterns, onCommit, contentVersion }: Props) {
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  async function commit(rating?: Grade) {
+    if (saving) return
+    setSaving(true)
+    setError('')
+    try {
+      await onCommit(rating)
+    } catch {
+      setError('Could not save your review. Please try again.')
+      setSaving(false)
+    }
+  }
   const correct = patterns.get(fb.question.correctId)
   const chosen = patterns.get(fb.chosen)
   const alsoValid = fb.question.alsoValid
@@ -56,6 +72,7 @@ export function FeedbackScreen({ fb, intervals, patterns, onCommit }: Props) {
         ) : null}
 
         <Block label="Complexity">{ex.complexity}</Block>
+        {!fb.correct ? <ExplanationRating fb={fb} contentVersion={contentVersion} /> : null}
 
         <a
           href={fb.problem.leetcodeUrl}
@@ -67,28 +84,33 @@ export function FeedbackScreen({ fb, intervals, patterns, onCommit }: Props) {
         </a>
       </div>
 
-      <div className="px-5 pt-2 pb-4">
+      <fieldset disabled={saving} className="px-5 pt-2 pb-4">
+        {error ? (
+          <p role="alert" className="mb-2 text-sm text-rose-300">
+            {error}
+          </p>
+        ) : null}
         {fb.correct && !fb.retry ? (
           <div className="grid grid-cols-3 gap-2">
-            <RateButton label="Hard" sub={formatDays(intervals[2])} onClick={() => onCommit(2)} />
+            <RateButton label="Hard" sub={formatDays(intervals[2])} onClick={() => commit(2)} />
             <RateButton
               label="Good"
               sub={formatDays(intervals[3])}
               primary
-              onClick={() => onCommit(3)}
+              onClick={() => commit(3)}
             />
-            <RateButton label="Easy" sub={formatDays(intervals[4])} onClick={() => onCommit(4)} />
+            <RateButton label="Easy" sub={formatDays(intervals[4])} onClick={() => commit(4)} />
           </div>
         ) : (
           <button
             type="button"
-            onClick={() => onCommit()}
+            onClick={() => commit()}
             className={`tap w-full rounded-2xl py-4 text-lg font-semibold text-white ${fb.correct ? 'bg-accent' : 'bg-zinc-800'}`}
           >
             {fb.correct ? 'Next' : fb.retry ? 'Next' : 'Got it — ask me again later'}
           </button>
         )}
-      </div>
+      </fieldset>
     </div>
   )
 }

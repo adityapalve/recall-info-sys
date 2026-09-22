@@ -124,6 +124,19 @@ export class SessionRunner {
     this.total = session.cardIds.length
   }
 
+  /** Stage changes without advancing the live runner until persistence succeeds. */
+  fork(): SessionRunner {
+    const copy = new SessionRunner(structuredClone(this.session), this.states, this.deps)
+    copy.queue.splice(0, copy.queue.length, ...this.queue.map((item) => ({ ...item })))
+    for (const [id, count] of this.retries) copy.retries.set(id, count)
+    copy.logs.push(...this.logs)
+    copy.answeredCount = this.answeredCount
+    copy.currentQuestion = this.currentQuestion
+    copy.pending = this.pending
+    copy.pendingElapsed = this.pendingElapsed
+    return copy
+  }
+
   get isDone(): boolean {
     return this.queue.length === 0 && this.pending === null
   }

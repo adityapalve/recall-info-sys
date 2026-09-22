@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "recall",
+  "pages_build_output_dir": "apps/web/dist",
+  "compatibility_date": "2026-09-22",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "recall-progress",
+      "database_id": "e94200e9-b1cf-4396-bf17-251112d20586",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "vars": {
+    "APP_ORIGIN": "https://recall-1sh.pages.dev",
+    "ALLOWED_EMAIL": "aditya4palve@gmail.com",
+  },
+}

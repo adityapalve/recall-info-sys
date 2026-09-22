@@ -13,7 +13,15 @@ import {
   type Summary,
 } from '@recall/engine'
 import type { Content } from './content.ts'
-import { countNewSeenToday, db, loadStates } from './db.ts'
+import {
+  countNewSeenToday,
+  db,
+  loadStates,
+  queueEvent,
+  initializeEvents,
+  materialize,
+  changed,
+} from './db.ts'
 import { endOfDay } from './time.ts'
 
 export interface HomeStats {
@@ -24,7 +32,7 @@ export interface HomeStats {
 }
 
 export function makeScheduler(settings: Settings): Scheduler {
-  return createScheduler({ desiredRetention: settings.desiredRetention, enableFuzz: true })
+  return createScheduler({ desiredRetention: settings.desiredRetention, enableFuzz: false })
 }
 
 export async function homeStats(
@@ -54,10 +62,12 @@ export async function homeStats(
 }
 
 export class LiveSession {
-  readonly runner: SessionRunner
+  runner: SessionRunner
   readonly scheduler: Scheduler
 
-  private constructor(runner: SessionRunner, scheduler: Scheduler) {
+  private readonly retention: number
+  private constructor(runner: SessionRunner, scheduler: Scheduler, retention: number) {
+    this.retention = retention
     this.runner = runner
     this.scheduler = scheduler
   }
@@ -67,6 +77,8 @@ export class LiveSession {
     settings: Settings,
     size: number,
   ): Promise<LiveSession | null> {
+    await initializeEvents()
+    await materialize()
     const now = Date.now()
     const scheduler = makeScheduler(settings)
     const states = await loadStates()
@@ -101,7 +113,7 @@ export class LiveSession {
       newId: () => crypto.randomUUID(),
       maxRetries: settings.maxRetries,
     })
-    return new LiveSession(runner, scheduler)
+    return new LiveSession(runner, scheduler, settings.desiredRetention)
   }
 
   /** Interval preview (days) per grade for the card currently awaiting a rating. */
@@ -112,13 +124,30 @@ export class LiveSession {
   }
 
   async commit(rating?: Grade): Promise<ReviewLog> {
-    const log = this.runner.commit(rating)
-    const state = this.runner.states.get(log.cardId)
-    await db.transaction('rw', db.cardStates, db.reviewLogs, db.sessions, async () => {
+    const candidate = this.runner.fork()
+    const log = candidate.commit(rating)
+    const state = candidate.states.get(log.cardId)
+    await db.transaction('rw', [db.cardStates, db.reviewLogs, db.sessions, db.events], async () => {
       if (log.scheduled && state) await db.cardStates.put(state)
       await db.reviewLogs.put(log)
-      if (this.runner.isDone) await db.sessions.put(this.runner.session)
+      await db.sessions.put(candidate.session)
+      await queueEvent({
+        id: log.id,
+        ts: log.ts,
+        kind: 'review',
+        log,
+        retention: this.retention,
+        schedulerVersion: 1,
+      })
+      await queueEvent({
+        id: crypto.randomUUID(),
+        ts: log.ts,
+        kind: 'session',
+        value: { ...candidate.session },
+      })
     })
+    this.runner = candidate
+    changed()
     return log
   }
 

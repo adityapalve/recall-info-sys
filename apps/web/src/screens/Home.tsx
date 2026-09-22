@@ -1,35 +1,50 @@
 import { useEffect, useState } from 'react'
-import type { Settings } from '@recall/engine'
+import type { Settings, ReviewLog } from '@recall/engine'
 import type { Content } from '../lib/content.ts'
-import { currentStreak } from '../lib/db.ts'
+import { currentStreak, db } from '../lib/db.ts'
 import { homeStats, type HomeStats } from '../lib/session.ts'
+
+import { Activity } from '../components/Activity.tsx'
+import { CloudPanel } from '../components/CloudPanel.tsx'
 
 interface Props {
   content: Content
   settings: Settings
   notice: string | null
-  onStart: (size: number) => void
+  onStart: (size: number) => Promise<void>
   onSettings: () => void
 }
 
 const SIZES = [10, 20, 30]
 
 export function Home({ content, settings, notice, onStart, onSettings }: Props) {
+  const [logs, setLogs] = useState<ReviewLog[]>([])
+  const [failure, setFailure] = useState<string | null>(null)
   const [stats, setStats] = useState<HomeStats | null>(null)
   const [streak, setStreak] = useState(0)
   const [size, setSize] = useState(settings.sessionSize)
   const [starting, setStarting] = useState(false)
 
   useEffect(() => {
-    const now = Date.now()
-    homeStats(content, settings, now).then(setStats)
-    currentStreak(now).then(setStreak)
+    const refresh = () => {
+      const now = Date.now()
+      Promise.all([homeStats(content, settings, now), currentStreak(now), db.reviewLogs.toArray()])
+        .then(([s, st, l]) => {
+          setStats(s)
+          setStreak(st)
+          setLogs(l)
+        })
+        .catch(() => setFailure('Could not load progress. Please reload.'))
+    }
+    refresh()
+    window.addEventListener('recall-cloud-applied', refresh)
+    return () => window.removeEventListener('recall-cloud-applied', refresh)
   }, [content, settings])
 
   const available = stats ? stats.due + stats.newAvailable : 0
 
   return (
-    <div className="flex flex-1 flex-col px-6 pt-4 pb-6">
+    <div className="flex flex-1 flex-col overflow-y-auto px-6 pt-4 pb-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Recall</h1>
         <button
@@ -49,7 +64,14 @@ export function Home({ content, settings, notice, onStart, onSettings }: Props) 
         <Stat label="Seen" value={stats ? `${stats.seen}/${stats.total}` : '–'} />
       </div>
 
-      <div className="flex-1" />
+      <Activity logs={logs} />
+      <CloudPanel compact />
+      <div className="min-h-4 flex-1" />
+      {failure ? (
+        <p role="alert" className="mb-3 text-sm text-rose-300">
+          {failure}
+        </p>
+      ) : null}
 
       {notice ? (
         <p className="mb-4 rounded-xl bg-zinc-900 p-3 text-center text-sm text-zinc-300">
@@ -78,7 +100,9 @@ export function Home({ content, settings, notice, onStart, onSettings }: Props) 
         disabled={!stats || available === 0 || starting}
         onClick={() => {
           setStarting(true)
-          onStart(size)
+          void onStart(size)
+            .catch(() => setFailure('Could not start. Please try again.'))
+            .finally(() => setStarting(false))
         }}
         className="tap w-full rounded-2xl bg-accent py-4 text-lg font-semibold text-white disabled:bg-zinc-800 disabled:text-zinc-500"
       >

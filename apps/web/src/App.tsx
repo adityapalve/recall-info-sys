@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Feedback, Grade, Settings, Summary } from '@recall/engine'
 import { loadContent, type Content } from './lib/content.ts'
 import { loadSettings, saveSettings } from './lib/db.ts'
+import { startSync, setStudying, syncNow } from './lib/sync.ts'
 import { LiveSession } from './lib/session.ts'
 import { Home } from './screens/Home.tsx'
 import { Question } from './screens/Question.tsx'
@@ -23,6 +24,15 @@ export function App() {
   const [screen, setScreen] = useState<Screen>({ kind: 'home' })
   const [live, setLive] = useState<LiveSession | null>(null)
 
+  useEffect(() => startSync(), [])
+  useEffect(() => {
+    const refresh = () => {
+      void loadSettings().then(setSettings)
+    }
+    window.addEventListener('recall-cloud-applied', refresh)
+    return () => window.removeEventListener('recall-cloud-applied', refresh)
+  }, [])
+
   useEffect(() => {
     Promise.all([loadContent(), loadSettings()])
       .then(([c, s]) => {
@@ -35,8 +45,16 @@ export function App() {
   const start = useCallback(
     async (size: number) => {
       if (!content || !settings) return
-      const s = await LiveSession.start(content, settings, size)
+      setStudying(true)
+      let s: LiveSession | null
+      try {
+        s = await LiveSession.start(content, settings, size)
+      } catch (e) {
+        setStudying(false)
+        throw e
+      }
       if (!s) {
+        setStudying(false)
         setScreen({ kind: 'home', notice: 'Nothing due and no new cards left for today.' })
         return
       }
@@ -69,6 +87,8 @@ export function App() {
   )
 
   const finish = useCallback(() => {
+    setStudying(false)
+    void syncNow()
     setLive(null)
     setScreen({ kind: 'home' })
   }, [])
@@ -139,6 +159,8 @@ export function App() {
       return (
         <Shell>
           <FeedbackScreen
+            key={`${screen.fb.cardId}:${live?.runner.logs.length}`}
+            contentVersion={content.version}
             fb={screen.fb}
             intervals={screen.intervals}
             patterns={content.patterns}
