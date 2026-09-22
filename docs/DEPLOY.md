@@ -1,44 +1,57 @@
-# Deploying
+# Deploying Recall
 
-The app is static files. `npm run build` validates the content, copies it into
-the app, and writes `apps/web/dist/`. Deploy that directory anywhere.
+Production URL: https://recall-1sh.pages.dev/
 
-## Cloudflare Pages (recommended)
+Cloudflare Pages project: `recall`. Production branch: `main`.
+This is a Direct Upload project, deployed from this checkout with Wrangler.
+Source repository: https://github.com/adityapalve/recall-info-sys (private).
+GitHub Actions checks pushes and pull requests; Cloudflare deployments remain
+manual via `npm run deploy`.
 
-1. Push the repo to GitHub (private is fine).
-2. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git → pick the repo.
-3. Build settings:
-   - Framework preset: **None**
-   - Build command: `npm run build`
-   - Build output directory: `apps/web/dist`
-   - Environment variable: `NODE_VERSION` = `22`
-4. Deploy. You get `<project>.pages.dev`.
-5. Custom domain: Pages project → Custom domains → add `recall.<yourdomain>`.
-   If the domain's DNS is on Cloudflare the CNAME is created for you; otherwise
-   add a CNAME `recall` → `<project>.pages.dev` at your DNS host.
+## Publish an update
 
-Every push to `main` redeploys app + content together. CI (`.github/workflows/ci.yml`)
-runs `npm run check` and a build on every push, so a broken content file fails before it ships.
+```sh
+npm ci
+npx wrangler login
+npm run deploy
+```
 
-## GitHub Pages (alternative, public repo)
+The deploy script runs lint, formatting, type checks, tests, and a production
+build before uploading `apps/web/dist` to the existing Pages project. Wrangler
+is pinned in the root package and lockfile. Login is needed only when the local
+Wrangler credentials are absent or expired. If you have multiple accounts,
+select the account that owns `recall` using `CLOUDFLARE_ACCOUNT_ID`.
 
-Add a workflow that runs `npm run build` and uploads `apps/web/dist` with
-`actions/deploy-pages`, put `recall.<yourdomain>` in `apps/web/public/CNAME`,
-and point a CNAME record at `adityapalve.github.io`. The service worker and
-manifest assume the app is served from the domain root, which a custom
-subdomain gives you.
+The build validates content, writes the deck and manifest into the app's public
+directory, and bundles the PWA and its service worker. Only the build output is
+uploaded; local IndexedDB progress and backup files are not included.
 
-## Installing on iPhone
+Cloudflare Direct Upload projects cannot switch to built-in Git integration.
+A future CI workflow can use Wrangler to deploy to this same project, or a new
+Pages project can be created for built-in Git integration.
 
-Open the URL in Safari → Share → **Add to Home Screen**. The installed app runs
-full-screen, works offline after the first load, and keeps its data in
-IndexedDB (home-screen apps are exempt from Safari's 7-day storage eviction).
+## Use on a phone
 
-Back up from Settings → Export backup; it uses the share sheet, so you can
-save the JSON to Files or iCloud. Import merges by most-recent review.
+Open https://recall-1sh.pages.dev/ on the phone. On iPhone, use Safari's Share
+menu and Add to Home Screen, then launch the installed app while online once
+so its content can be cached. Android browsers also offer an install option.
 
-## Content updates
+Use the stable production URL above, not a deployment-specific preview URL:
+browser storage is scoped to the origin. A custom domain would also have
+separate storage, so export progress before changing origins.
 
-Edit or add files under `packages/content/leetcode/`, run
-`npm run build -w @recall/content` to validate, commit, push. The manifest
-carries a content hash; the Settings screen shows which version the phone has.
+The full deck is included. Progress is local to each browser/app installation;
+there is no automatic sync yet. To transfer existing progress, export a backup
+from Settings in the original instance, transfer the JSON to the phone, and
+import it from Settings inside the installed app. Retain a backup separately.
+
+## Content updates and sync
+
+Edit `packages/content/leetcode/` or `packages/content/patterns.yaml`, then run
+`npm run deploy`. The content hash is visible in Settings.
+
+See [SYNC.md](SYNC.md) for the proposed cross-device sync architecture and rollout.
+
+## Cloudflare reference
+
+https://developers.cloudflare.com/pages/get-started/direct-upload/
