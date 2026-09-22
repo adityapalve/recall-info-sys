@@ -16,8 +16,8 @@ export function activityDays(logs: readonly ReviewLog[], now: number) {
   }
   const start = new Date(now)
   start.setHours(0, 0, 0, 0)
-  start.setDate(start.getDate() - start.getDay() - 11 * 7)
-  return Array.from({ length: 84 }, (_, i) => {
+  start.setDate(start.getDate() - start.getDay() - 7 * 7)
+  return Array.from({ length: 56 }, (_, i) => {
     const d = new Date(start)
     d.setDate(d.getDate() + i)
     const key = dayKey(d.getTime())

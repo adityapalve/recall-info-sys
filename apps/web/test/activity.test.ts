@@ -20,7 +20,7 @@ function log(ts: number, scheduled = true): ReviewLog {
 it('counts committed scheduled reviews rather than retries', () => {
   const now = new Date(2026, 8, 22, 12).getTime()
   const days = activityDays([log(now), log(now + 1, false)], now)
-  expect(days).toHaveLength(84)
+  expect(days).toHaveLength(56)
   expect(days.find((d) => d.key === dayKey(now))?.count).toBe(1)
 })
 it('walks calendar days across daylight saving changes', () => {

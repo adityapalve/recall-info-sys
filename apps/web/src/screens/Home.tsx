@@ -5,7 +5,6 @@ import { currentStreak, db } from '../lib/db.ts'
 import { homeStats, type HomeStats } from '../lib/session.ts'
 
 import { Activity } from '../components/Activity.tsx'
-import { CloudPanel } from '../components/CloudPanel.tsx'
 
 interface Props {
   content: Content
@@ -65,7 +64,6 @@ export function Home({ content, settings, notice, onStart, onSettings }: Props) 
       </div>
 
       <Activity logs={logs} />
-      <CloudPanel compact />
       <div className="min-h-4 flex-1" />
       {failure ? (
         <p role="alert" className="mb-3 text-sm text-rose-300">

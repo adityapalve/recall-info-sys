@@ -12,7 +12,7 @@ export function Activity({ logs }: { logs: ReviewLog[] }) {
     <section className="my-6" aria-label="Study activity">
       <div className="mb-3 flex justify-between text-xs text-zinc-400">
         <h2>Study activity</h2>
-        <span>Last 12 weeks</span>
+        <span>Last 8 weeks</span>
       </div>
       <div className="grid grid-flow-col grid-rows-7 gap-1.5">
         {days.map((d) => (
