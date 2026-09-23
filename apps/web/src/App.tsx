@@ -4,6 +4,7 @@ import { loadContent, type Content } from './lib/content.ts'
 import { loadSettings, saveSettings } from './lib/db.ts'
 import { startSync, setStudying, syncNow } from './lib/sync.ts'
 import { LiveSession } from './lib/session.ts'
+import { applyAppearance } from './lib/appearance.ts'
 import { Home } from './screens/Home.tsx'
 import { Question } from './screens/Question.tsx'
 import { FeedbackScreen } from './screens/Feedback.tsx'
@@ -25,6 +26,9 @@ export function App() {
   const [live, setLive] = useState<LiveSession | null>(null)
 
   useEffect(() => startSync(), [])
+  useEffect(() => {
+    if (settings) applyAppearance(settings)
+  }, [settings])
   useEffect(() => {
     const refresh = () => {
       void loadSettings().then(setSettings)

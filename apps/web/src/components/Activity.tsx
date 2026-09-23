@@ -7,7 +7,7 @@ export function Activity({ logs }: { logs: ReviewLog[] }) {
   const days = activityDays(logs, now)
   const [selected, setSelected] = useState<string | null>(null)
   const day = days.find((d) => d.key === selected)
-  const colors = ['bg-zinc-800', 'bg-violet-950', 'bg-violet-800', 'bg-violet-600', 'bg-violet-400']
+  const colors = ['activity-0', 'activity-1', 'activity-2', 'activity-3', 'activity-4']
   return (
     <section className="mt-5 pb-2" aria-label="Study activity">
       <div className="mb-3 flex justify-between text-xs text-zinc-400">

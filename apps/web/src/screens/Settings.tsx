@@ -1,4 +1,5 @@
 import { CloudPanel } from '../components/CloudPanel.tsx'
+import { AppearancePanel } from '../components/AppearancePanel.tsx'
 import type { ExplanationFeedback } from '@recall/engine'
 import { useEffect, useRef, useState } from 'react'
 import { type Settings } from '@recall/engine'
@@ -86,6 +87,7 @@ export function SettingsScreen({ settings, contentVersion, onChange, onBack }: P
           avatar={settings.avatar ?? 'fox'}
           onAvatarChange={(avatar) => onChange({ ...settings, avatar })}
         />
+        <AppearancePanel settings={settings} onChange={onChange} />
         <Section title="Sessions">
           <Stepper
             label="New cards per day"

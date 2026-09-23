@@ -5,6 +5,83 @@
   --color-accent-strong: #4f46e5;
 }
 
+html[data-theme='ocean'] {
+  --color-zinc-950: #071820;
+  --color-zinc-900: #112a34;
+  --color-zinc-800: #1d3b46;
+  --color-zinc-700: #385967;
+  --color-zinc-500: #7d99a1;
+  --color-zinc-400: #a9bec3;
+  --color-zinc-300: #d2e0e2;
+  --color-zinc-200: #e8f1f1;
+  --color-accent: #147e9c;
+  --color-accent-strong: #0d6884;
+}
+
+html[data-theme='pine'] {
+  --color-zinc-950: #0c1713;
+  --color-zinc-900: #192821;
+  --color-zinc-800: #273b2f;
+  --color-zinc-700: #405f4c;
+  --color-zinc-500: #829987;
+  --color-zinc-400: #afc1b0;
+  --color-zinc-300: #d5e1d4;
+  --color-zinc-200: #edf3e9;
+  --color-accent: #367f53;
+  --color-accent-strong: #286a43;
+}
+
+html[data-theme='plum'] {
+  --color-zinc-950: #1a1120;
+  --color-zinc-900: #2b1b32;
+  --color-zinc-800: #402a49;
+  --color-zinc-700: #63446c;
+  --color-zinc-500: #a086a9;
+  --color-zinc-400: #c5b1cb;
+  --color-zinc-300: #e1d2e4;
+  --color-zinc-200: #f2eaf3;
+  --color-accent: #8d53b4;
+  --color-accent-strong: #76429b;
+}
+
+html[data-theme='ember'] {
+  --color-zinc-950: #1d140e;
+  --color-zinc-900: #302118;
+  --color-zinc-800: #463124;
+  --color-zinc-700: #6a4c35;
+  --color-zinc-500: #aa8f77;
+  --color-zinc-400: #cbb5a0;
+  --color-zinc-300: #ead9c9;
+  --color-zinc-200: #f7eee2;
+  --color-accent: #9b5b2e;
+  --color-accent-strong: #84481e;
+}
+
+html[data-theme='berry'] {
+  --color-zinc-950: #1d1119;
+  --color-zinc-900: #301d28;
+  --color-zinc-800: #482a3b;
+  --color-zinc-700: #6b4159;
+  --color-zinc-500: #a68798;
+  --color-zinc-400: #cfb2bf;
+  --color-zinc-300: #e8d3dd;
+  --color-zinc-200: #f7eaf0;
+  --color-accent: #ad3e72;
+  --color-accent-strong: #96305f;
+}
+
+html[data-font='rounded'] {
+  --app-font: ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+}
+
+html[data-font='serif'] {
+  --app-font: ui-serif, Georgia, Cambria, serif;
+}
+
+html[data-font='mono'] {
+  --app-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 html,
 body,
 #root {
@@ -13,19 +90,21 @@ body,
 
 body {
   margin: 0;
-  background: #09090b;
-  color: #f4f4f5;
+  background: var(--color-zinc-950);
+  color: var(--color-zinc-100);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--app-font, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 .safe-top {
@@ -42,4 +121,20 @@ body {
 }
 .tap:active {
   transform: scale(0.97);
+}
+
+.activity-0 {
+  background: var(--color-zinc-800);
+}
+.activity-1 {
+  background: color-mix(in srgb, var(--color-accent) 25%, var(--color-zinc-900));
+}
+.activity-2 {
+  background: color-mix(in srgb, var(--color-accent) 45%, var(--color-zinc-900));
+}
+.activity-3 {
+  background: color-mix(in srgb, var(--color-accent) 70%, var(--color-zinc-900));
+}
+.activity-4 {
+  background: var(--color-accent);
 }

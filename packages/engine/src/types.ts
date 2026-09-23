@@ -109,6 +109,8 @@ export interface Settings {
   /** How many times a missed card is re-asked within the same session. */
   maxRetries: number
   avatar?: AvatarId | undefined
+  theme?: ThemeId | undefined
+  font?: FontId | undefined
 }
 
 export const AVATAR_IDS = [
@@ -125,10 +127,17 @@ export const AVATAR_IDS = [
 ] as const
 export type AvatarId = (typeof AVATAR_IDS)[number]
 
+export const THEME_IDS = ['midnight', 'ocean', 'pine', 'plum', 'ember', 'berry'] as const
+export type ThemeId = (typeof THEME_IDS)[number]
+export const FONT_IDS = ['system', 'rounded', 'serif', 'mono'] as const
+export type FontId = (typeof FONT_IDS)[number]
+
 export const DEFAULT_SETTINGS: Settings = {
   sessionSize: 20,
   newPerDay: 10,
   desiredRetention: 0.9,
   maxRetries: 2,
   avatar: 'fox',
+  theme: 'midnight',
+  font: 'system',
 }
