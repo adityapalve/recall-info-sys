@@ -8,7 +8,8 @@ import { readFile } from 'node:fs/promises'
 import { handle } from '../src/handler.ts'
 import { hash, type ApiEnv } from '../src/auth.ts'
 
-const origin = 'https://recall-1sh.pages.dev'
+const origin = 'https://recall.palve.dev'
+const pagesOrigin = 'https://recall-1sh.pages.dev'
 const mf = new Miniflare(
   convertV4MiniflareOptions({
     workers: [
@@ -26,6 +27,7 @@ beforeAll(async () => {
   env = {
     DB: await mf.getD1Database('DB'),
     APP_ORIGIN: origin,
+    PAGES_ORIGIN: pagesOrigin,
     ALLOWED_EMAIL: 'aditya4palve@gmail.com',
   }
   const sql = await readFile(new URL('../../../migrations/0001_sync.sql', import.meta.url), 'utf8')
@@ -42,8 +44,8 @@ beforeAll(async () => {
       .run()
 })
 afterAll(() => mf.dispose())
-function request(body: unknown, token = 'u1', requestOrigin = origin) {
-  return new Request(origin + '/api/sync', {
+function request(body: unknown, token = 'u1', requestOrigin = origin, host = origin) {
+  return new Request(host + '/api/sync', {
     method: 'POST',
     headers: {
       Origin: requestOrigin,
@@ -65,6 +67,14 @@ describe('authenticated sync API', () => {
     expect(
       (await handle(request({ cursor: 0, events: [] }, 'u1', 'https://evil.example'), env)).status,
     ).toBe(403)
+    expect(
+      (await handle(request({ cursor: 0, events: [] }, 'u1', origin, pagesOrigin), env)).status,
+    ).toBe(403)
+    expect((await handle(new Request('https://evil.example/api/auth/me'), env)).status).toBe(403)
+    expect(
+      (await handle(request({ cursor: 0, events: [] }, 'u1', pagesOrigin, pagesOrigin), env))
+        .status,
+    ).toBe(200)
   })
   it('deduplicates retried uploads and keeps accounts isolated', async () => {
     const first = await handle(request({ cursor: 0, events: [event] }), env)
@@ -120,5 +130,14 @@ describe('authenticated sync API', () => {
         })
       ).status,
     ).toBe(400)
+  })
+  it('uses a callback on the same allowed host that started sign-in', async () => {
+    const configured = { ...env, GOOGLE_CLIENT_ID: 'test', GOOGLE_CLIENT_SECRET: 'test' }
+    for (const host of [origin, pagesOrigin]) {
+      const response = await handle(new Request(host + '/api/auth/login'), configured)
+      expect(response.status).toBe(302)
+      const location = new URL(response.headers.get('Location') ?? '')
+      expect(location.searchParams.get('redirect_uri')).toBe(`${host}/api/auth/callback`)
+    }
   })
 })

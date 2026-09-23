@@ -1,6 +1,7 @@
 # Deploying Recall
 
-Production URL: https://recall-1sh.pages.dev/
+Production URL: https://recall.palve.dev/
+Pages URL: https://recall-1sh.pages.dev/
 
 Cloudflare Pages project: `recall`. Production branch: `main`.
 This is a Direct Upload project, deployed from this checkout with Wrangler.
@@ -35,13 +36,14 @@ remains manual.
 
 ## Use on a phone
 
-Open https://recall-1sh.pages.dev/ on the phone. On iPhone, use Safari's Share
+Open https://recall.palve.dev/ on the phone. On iPhone, use Safari's Share
 menu and Add to Home Screen, then launch the installed app while online once
 so its content can be cached. Android browsers also offer an install option.
 
 Use the stable production URL above, not a deployment-specific preview URL:
-browser storage is scoped to the origin. A custom domain would also have
-separate storage, so export progress before changing origins.
+browser storage is scoped to the origin. The Pages URL has separate local
+storage, so export progress there before moving to the custom domain unless
+the device has already completed a cloud backup.
 
 The full deck is included. Until Google sign-in is configured and this device is
 connected, progress stays local. To transfer existing progress, export a backup
@@ -61,8 +63,8 @@ https://developers.cloudflare.com/pages/get-started/direct-upload/
 
 ## D1 and Google sign-in
 
-`wrangler.jsonc` defines the `DB` binding to `recall-progress`, the production
-origin, and the owner's allowed email. Before the first backend deployment:
+`wrangler.jsonc` defines the `DB` binding to `recall-progress`, the primary and
+Pages origins, and the owner's allowed email. Before the first backend deployment:
 
 ```sh
 npx wrangler d1 migrations apply recall-progress --remote
@@ -73,7 +75,8 @@ Create a Google Cloud project, then open **Google Auth Platform**:
 1. Configure branding (app name Recall and your support/contact email).
 2. Choose External audience; while testing, add your Google email as a test user.
 3. Create a client of type **Web application**.
-4. Add this exact authorized redirect URI:
+4. Add these exact authorized redirect URIs:
+   `https://recall.palve.dev/api/auth/callback` and
    `https://recall-1sh.pages.dev/api/auth/callback`.
 5. Save the client ID and client secret as Pages secrets using the interactive
    prompts below. Do not commit the downloaded client JSON or paste secrets into
@@ -90,10 +93,13 @@ sign-in remains disabled and no cloud backup occurs. After setup, sign in and
 choose **Back up and merge this device**. Verify a review appears on a second
 device before relying on recovery. JSON export remains available in Settings.
 
-If moving to `recall.palve.dev`, configure the Pages custom domain first, change
-`APP_ORIGIN`, add `https://recall.palve.dev/api/auth/callback` in Google, and
-redeploy. Export/import local progress when changing origin. Existing cloud
-history remains associated with the same Google account.
+The sign-in flow starts on the server through `/api/auth/login`; it does not use
+the Google JavaScript sign-in library. Each allowed host redirects to its own
+registered callback URI. `APP_ORIGIN` is the preferred custom domain and
+`PAGES_ORIGIN` retains sign-in on the Pages URL. The custom domain must be
+attached to the Pages project before deployment. Existing cloud history remains
+associated with the same Google account, while local browser storage remains
+separate between the two hosts.
 
 Local API development uses `npx wrangler pages dev apps/web/dist` after a build
 and `npx wrangler d1 migrations apply recall-progress --local`. Override

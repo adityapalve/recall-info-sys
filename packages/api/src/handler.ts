@@ -51,15 +51,15 @@ export async function handle(request: Request, env: ApiEnv): Promise<Response> {
 }
 async function route(request: Request, env: ApiEnv): Promise<Response> {
   const url = new URL(request.url)
-  if (url.origin !== env.APP_ORIGIN)
+  if (url.origin !== env.APP_ORIGIN && url.origin !== env.PAGES_ORIGIN)
     return Response.json({ error: 'Use the production site to sign in and sync.' }, { status: 403 })
-  if (request.method === 'POST' && request.headers.get('Origin') !== env.APP_ORIGIN)
+  if (request.method === 'POST' && request.headers.get('Origin') !== url.origin)
     return Response.json({ error: 'Invalid origin' }, { status: 403 })
   if (url.pathname === '/api/auth/me' && request.method === 'GET')
     return Response.json({ user: await currentUser(request, env), configured: configured(env) })
-  if (url.pathname === '/api/auth/login' && request.method === 'GET') return login(env)
+  if (url.pathname === '/api/auth/login' && request.method === 'GET') return login(env, url.origin)
   if (url.pathname === '/api/auth/callback' && request.method === 'GET')
-    return callback(request, env)
+    return callback(request, env, url.origin)
   if (url.pathname === '/api/auth/logout' && request.method === 'POST') {
     await env.DB.prepare('DELETE FROM auth_sessions WHERE token_hash=?')
       .bind(await hash(cookie(request, '__Host-recall')))
