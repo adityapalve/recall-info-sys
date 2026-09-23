@@ -1,9 +1,20 @@
 import { useEffect, useState } from 'react'
+import type { AvatarId } from '@recall/engine'
 import { connectCloud, getCloudStatus, syncNow, signOut } from '../lib/sync.ts'
+import { AvatarPicker } from './AvatarPicker.tsx'
 
-export function CloudPanel({ compact = false }: { compact?: boolean }) {
+export function CloudPanel({
+  compact = false,
+  avatar = 'fox',
+  onAvatarChange,
+}: {
+  compact?: boolean
+  avatar?: AvatarId
+  onAvatarChange?: (avatar: AvatarId) => void
+}) {
   const [status, setStatus] = useState(getCloudStatus)
   const [error, setError] = useState('')
+  const [pickerOpen, setPickerOpen] = useState(false)
   useEffect(() => {
     const update = () => setStatus(getCloudStatus())
     window.addEventListener('recall-sync', update)
@@ -15,7 +26,27 @@ export function CloudPanel({ compact = false }: { compact?: boolean }) {
       aria-label="Cloud backup"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-medium">Cloud backup</span>
+        <div className="flex min-w-0 items-center gap-3">
+          {onAvatarChange ? (
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              aria-label={`Change avatar, currently ${avatar}`}
+              className="relative shrink-0 rounded-full ring-2 ring-zinc-700 ring-offset-2 ring-offset-zinc-950 focus-visible:ring-accent"
+            >
+              <img src={`/avatars/${avatar}.svg`} alt="" className="h-12 w-12 rounded-full" />
+              <span className="absolute -right-1 -bottom-1 grid h-5 w-5 place-items-center rounded-full bg-zinc-700 text-xs text-white">
+                ✎
+              </span>
+            </button>
+          ) : null}
+          <div className="min-w-0">
+            <p className="font-medium">Cloud backup</p>
+            {status.user ? (
+              <p className="truncate text-xs text-zinc-400">{status.user.email}</p>
+            ) : null}
+          </div>
+        </div>
         <span className="text-xs text-zinc-400" role="status">
           {status.busy
             ? 'Syncing…'
@@ -26,7 +57,7 @@ export function CloudPanel({ compact = false }: { compact?: boolean }) {
                 : 'Local only'}
         </span>
       </div>
-      <p className="mt-1 text-xs text-zinc-400">{status.message || status.user?.email}</p>
+      {status.message ? <p className="mt-3 text-xs text-zinc-400">{status.message}</p> : null}
       {status.lastSync && !compact ? (
         <p className="mt-1 text-xs text-zinc-500">
           Last synced {new Date(status.lastSync).toLocaleString()}
@@ -52,7 +83,7 @@ export function CloudPanel({ compact = false }: { compact?: boolean }) {
             )
           }}
         >
-          {status.owner ? 'Sync now' : 'Back up and merge this device'}
+          {status.owner ? 'Sync now' : status.busy ? 'Connecting…' : 'Connect backup'}
         </button>
       )}
       {status.user && !compact ? (
@@ -70,14 +101,22 @@ export function CloudPanel({ compact = false }: { compact?: boolean }) {
         </button>
       ) : null}
       {status.user && !status.owner ? (
-        <p className="mt-2 text-xs text-zinc-400">
-          Merge local progress with {status.user.email}. Nothing is uploaded until you connect.
-        </p>
+        <p className="mt-2 text-xs text-zinc-400">Connecting this device to your cloud backup.</p>
       ) : null}
       {error ? (
         <p role="alert" className="mt-2 text-xs text-rose-300">
           {error}
         </p>
+      ) : null}
+      {pickerOpen && onAvatarChange ? (
+        <AvatarPicker
+          selected={avatar}
+          onSelect={(next) => {
+            onAvatarChange(next)
+            setPickerOpen(false)
+          }}
+          onClose={() => setPickerOpen(false)}
+        />
       ) : null}
     </section>
   )

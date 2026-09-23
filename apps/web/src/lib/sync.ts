@@ -91,11 +91,14 @@ async function performSync() {
   await checkIdentity()
   const owner = status.user?.id
   const initial = await db.syncMeta.get('sync')
-  if (!owner || !initial?.owner) return
-  if (initial.owner !== owner) {
+  if (!owner || !initial) return
+  if (initial.owner && initial.owner !== owner) {
     publish({ message: 'Account differs from this device. Sign back into the original account.' })
     return
   }
+  // A successful Google sign-in links this device on its first load. Existing
+  // ownership remains protected by the account check above.
+  if (!initial.owner) await db.syncMeta.put({ ...initial, owner })
   publish({ busy: true, message: 'Syncing…' })
   try {
     let more = true

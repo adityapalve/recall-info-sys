@@ -13,3 +13,4 @@ worker-configuration.d.ts
 
 # Downloaded Google OAuth credentials
 client_secret_*.json
+google_auth.json

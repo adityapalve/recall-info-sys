@@ -108,11 +108,27 @@ export interface Settings {
   desiredRetention: number
   /** How many times a missed card is re-asked within the same session. */
   maxRetries: number
+  avatar?: AvatarId | undefined
 }
+
+export const AVATAR_IDS = [
+  'fox',
+  'cat',
+  'bunny',
+  'bear',
+  'panda',
+  'frog',
+  'penguin',
+  'duck',
+  'dog',
+  'owl',
+] as const
+export type AvatarId = (typeof AVATAR_IDS)[number]
 
 export const DEFAULT_SETTINGS: Settings = {
   sessionSize: 20,
   newPerDay: 10,
   desiredRetention: 0.9,
   maxRetries: 2,
+  avatar: 'fox',
 }

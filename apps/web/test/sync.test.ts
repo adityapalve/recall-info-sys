@@ -54,3 +54,24 @@ it('will not connect another account to an owned device', async () => {
   await expect(connectCloud()).rejects.toThrow('another account')
   expect((await db.syncMeta.get('sync'))?.owner).toBe('original')
 })
+it('connects and uploads local progress on the first signed-in load', async () => {
+  await initializeEvents()
+  await queueEvent({ id: 'first-review', ts: 1, kind: 'settings', value: DEFAULT_SETTINGS })
+  const uploaded: string[] = []
+  vi.stubGlobal('fetch', async (url: string, options?: RequestInit) => {
+    if (url === '/api/auth/me')
+      return Response.json({ user: { id: 'owner', email: 'owner@example.com' }, configured: true })
+    const input = syncRequestSchema.parse(JSON.parse(String(options?.body)))
+    uploaded.push(...input.events.map((event) => event.id))
+    return Response.json({
+      acknowledged: input.events.map((event) => event.id),
+      cursor: 1,
+      more: false,
+      events: input.events,
+    })
+  })
+  await syncNow()
+  expect((await db.syncMeta.get('sync'))?.owner).toBe('owner')
+  expect(uploaded).toEqual(['first-review'])
+  expect((await db.events.get('first-review'))?.pending).toBe(0)
+})

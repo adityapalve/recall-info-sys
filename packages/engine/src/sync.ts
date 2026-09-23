@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createScheduler } from './scheduler.ts'
-import type { CardState } from './types.ts'
+import { AVATAR_IDS, type CardState } from './types.ts'
 
 const id = z.string().min(1).max(200)
 const time = z.number().int().min(0).max(8640000000000000)
@@ -11,6 +11,7 @@ export const settingsSchema = z.object({
   newPerDay: z.number().int().min(0).max(100),
   desiredRetention: z.number().min(0.7).max(0.97),
   maxRetries: z.number().int().min(0).max(5),
+  avatar: z.enum(AVATAR_IDS).optional(),
 })
 const snapshotSchema = z.object({
   state,

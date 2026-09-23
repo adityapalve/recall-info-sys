@@ -82,7 +82,10 @@ export function SettingsScreen({ settings, contentVersion, onChange, onBack }: P
       </header>
 
       <div className="mt-4 flex-1 overflow-y-auto">
-        <CloudPanel />
+        <CloudPanel
+          avatar={settings.avatar ?? 'fox'}
+          onAvatarChange={(avatar) => onChange({ ...settings, avatar })}
+        />
         <Section title="Sessions">
           <Stepper
             label="New cards per day"
