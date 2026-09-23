@@ -12,7 +12,8 @@
     },
   ],
   "vars": {
-    "APP_ORIGIN": "https://recall-1sh.pages.dev",
+    "APP_ORIGIN": "https://recall.palve.dev",
+    "PAGES_ORIGIN": "https://recall-1sh.pages.dev",
     "ALLOWED_EMAIL": "aditya4palve@gmail.com",
   },
 }

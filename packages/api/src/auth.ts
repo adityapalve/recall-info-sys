@@ -41,7 +41,7 @@ export async function currentUser(request: Request, env: ApiEnv) {
 export function configured(env: ApiEnv) {
   return Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
 }
-export async function login(env: ApiEnv) {
+export async function login(env: ApiEnv, origin: string) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)
     return Response.json({ error: 'Google sign-in needs configuration' }, { status: 503 })
   const state = randomToken(),
@@ -67,7 +67,7 @@ export async function login(env: ApiEnv) {
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
   url.search = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
-    redirect_uri: `${env.APP_ORIGIN}/api/auth/callback`,
+    redirect_uri: `${origin}/api/auth/callback`,
     response_type: 'code',
     scope: 'openid email',
     state,
@@ -82,7 +82,7 @@ export async function login(env: ApiEnv) {
   })
 }
 const tokenResponse = z.object({ id_token: z.string() })
-export async function callback(request: Request, env: ApiEnv) {
+export async function callback(request: Request, env: ApiEnv, origin: string) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)
     return new Response('Sign-in is not configured', { status: 503 })
   const url = new URL(request.url),
@@ -103,7 +103,7 @@ export async function callback(request: Request, env: ApiEnv) {
       code,
       client_id: env.GOOGLE_CLIENT_ID,
       client_secret: env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${env.APP_ORIGIN}/api/auth/callback`,
+      redirect_uri: `${origin}/api/auth/callback`,
       grant_type: 'authorization_code',
       code_verifier: record.verifier,
     }),
