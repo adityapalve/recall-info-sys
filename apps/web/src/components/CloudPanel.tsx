@@ -57,7 +57,9 @@ export function CloudPanel({
                 : 'Local only'}
         </span>
       </div>
-      {status.message ? <p className="mt-3 text-xs text-zinc-400">{status.message}</p> : null}
+      <p aria-live="polite" className="mt-3 min-h-4 text-xs text-zinc-400">
+        {status.message || '\u00a0'}
+      </p>
       {status.lastSync && !compact ? (
         <p className="mt-1 text-xs text-zinc-500">
           Last synced {new Date(status.lastSync).toLocaleString()}
